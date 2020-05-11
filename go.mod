@@ -11,6 +11,7 @@ require (
 	github.com/linuxboot/fiano v5.0.0+incompatible
 	github.com/mimoja/amdfw v0.0.0-20191031111635-2218359ecbdc // indirect
 	github.com/mimoja/intelfsp v0.0.0-20200131082651-219faac6d96b
+	github.com/mimoja/intelmc v0.0.0-20200511122253-e5201993a3e3
 	github.com/mimoja/spdlib v0.0.0-20200507110109-fbd0a05639ec
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/ulikunitz/xz v0.5.7 // indirect
