@@ -1,1 +1,2 @@
-cmd/mft/mft
+cmd/mft-cli/mft-cli
+cmd/mq_service/mq_service
