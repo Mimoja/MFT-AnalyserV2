@@ -1,3 +1,4 @@
+//go:generate go run github.com/UnnoTed/fileb0x embedding_rules.yaml
 package MFT_AnalyserV2
 
 import (
@@ -6,6 +7,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"github.com/Mimoja/MFT-AnalyserV2/yara_rules"
 	MFTCommon "github.com/Mimoja/MFT-Common"
 	"github.com/Mimoja/intelfit"
 	"github.com/hillu/go-yara"
@@ -14,10 +16,7 @@ import (
 	"github.com/mimoja/intelmc"
 	spdutil "github.com/mimoja/spdlib"
 	zcrypto "github.com/zmap/zcrypto/x509"
-	"io/ioutil"
 	"log"
-	"os"
-	"path"
 )
 
 var yaraRules *yara.Rules
@@ -28,23 +27,16 @@ func SetupYara() {
 		log.Fatal("Could not create yara compiler")
 	}
 
-	rules := os.Args[1]
-
-	log.Printf("Checking for Yara files in %s", rules)
-	files, err := ioutil.ReadDir(rules)
+	files, err := yara_rules.WalkDirs("", false)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, f := range files {
-		log.Printf("Adding file: %s", f.Name())
-		file, err := os.Open(path.Join(rules, f.Name()))
-		defer file.Close()
-		if err != nil {
-			log.Fatalf("Could not load rule: %v", err)
-		}
+		log.Printf("Loading ruleset: %s", f)
+		file, err := yara_rules.ReadFile(f)
 
-		err = c.AddFile(file, "test")
+		err = c.AddString(string(file), "test")
 		if err != nil {
 			log.Fatalf("Could not add rule: %v", err)
 		}
@@ -219,7 +211,7 @@ func Analyse(bs []byte) (Result, error) {
 		is_intel = true
 	}
 
-	if(result.INTEL.FIT != nil) {
+	if result.INTEL.FIT != nil {
 		for _, fit := range result.INTEL.FIT.Entries {
 			if fit.Type == intelfit.MICROCODE_UPDATE {
 				mc, err := intelmc.ParseMicrocode(bs[fit.Address & ^result.INTEL.FIT.Mask:])

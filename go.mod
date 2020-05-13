@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/Mimoja/MFT-Common v0.0.0-20200131163440-2e96a4639d26
 	github.com/Mimoja/intelfit v0.0.0-20191116112233-90f6e6fa4dab
-	github.com/Mimoja/intelifd v0.0.0-20191101104243-2e7d6ef2f678 // indirect
 	github.com/hillu/go-yara v1.2.3-0.20200505204128-fd0f1d0aa191
 	github.com/jedib0t/go-pretty v4.2.1+incompatible
 	github.com/linuxboot/fiano v5.0.0+incompatible
@@ -16,4 +15,5 @@ require (
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/ulikunitz/xz v0.5.7 // indirect
 	github.com/zmap/zcrypto v0.0.0-20200428201052-0b8e6e5fef4f
+	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
 )

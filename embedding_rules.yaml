@@ -1,0 +1,26 @@
+# all folders and files are relative to the path
+# where fileb0x was run at!
+
+# default: main
+pkg: yara_rules
+
+# destination
+dest: "./yara_rules"
+
+# default: ab0x.go
+output: "embedded_rules.go"
+
+# [noprefix] disables adding "a" prefix to output
+# type: bool
+# default: false
+noprefix: true
+
+# [debug] is a debug mode where the files are read directly from the file
+# sytem. Useful for web dev when files change when the server is running.
+# type: bool
+# default: false
+debug: false
+
+custom:
+  - files:
+      - "yara_rules"

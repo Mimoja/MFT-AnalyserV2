@@ -14,7 +14,12 @@ import (
 func main() {
 	MFT_AnalyserV2.SetupYara()
 
-	bs, err := ioutil.ReadFile(os.Args[2])
+	if len(os.Args) < 2 {
+		log.Printf("Please provide the flashimage to be analysed")
+		os.Exit(1)
+	}
+
+	bs, err := ioutil.ReadFile(os.Args[1])
 
 	if err != nil {
 		log.Fatalf("Could not open input file: %v", err)
@@ -121,8 +126,8 @@ func handleResult(r MFT_AnalyserV2.Result) {
 			tw = table.NewWriter()
 			tw.AppendHeader(table.Row{"FIT", "Header"})
 			tw.AppendRow(table.Row{"", "Address", fmt.Sprintf("0x%X", fit.Address & ^r.INTEL.FIT.Mask)})
-			tw.AppendRow(table.Row{"", "Size", fmt.Sprintf("0x%X",fit.Size)})
-			tw.AppendRow(table.Row{"", "Version", fmt.Sprintf("0x%X",fit.Version)})
+			tw.AppendRow(table.Row{"", "Size", fmt.Sprintf("0x%X", fit.Size)})
+			tw.AppendRow(table.Row{"", "Version", fmt.Sprintf("0x%X", fit.Version)})
 			tw.AppendRow(table.Row{"", "Type", fit.Type})
 			tw.AppendRow(table.Row{"", "TypeString", fit.TypeString})
 			tw.AppendRow(table.Row{"", "ChecksumAvailable", fit.ChecksumAvailable})
@@ -133,8 +138,8 @@ func handleResult(r MFT_AnalyserV2.Result) {
 				tw = table.NewWriter()
 				tw.AppendHeader(table.Row{"FIT", "Entry", strconv.Itoa(i)})
 				tw.AppendRow(table.Row{"", "Address", fmt.Sprintf("0x%X", fit.Address & ^r.INTEL.FIT.Mask)})
-				tw.AppendRow(table.Row{"", "Size", fmt.Sprintf("0x%X",fit.Size)})
-				tw.AppendRow(table.Row{"", "Version", fmt.Sprintf("0x%X",fit.Version)})
+				tw.AppendRow(table.Row{"", "Size", fmt.Sprintf("0x%X", fit.Size)})
+				tw.AppendRow(table.Row{"", "Version", fmt.Sprintf("0x%X", fit.Version)})
 				tw.AppendRow(table.Row{"", "Type", fit.Type})
 				tw.AppendRow(table.Row{"", "TypeString", fit.TypeString})
 				tw.AppendRow(table.Row{"", "ChecksumAvailable", fit.ChecksumAvailable})
