@@ -74,7 +74,7 @@ func Analyse(bs []byte) (Result, error) {
 	result.INTEL = &MFTCommon.IntelFirmware{}
 	result.ID = MFTCommon.GenerateID(bs)
 
-	matches, err := yaraRules.ScanMem(bs, 0, 1000, nil)
+	matches, err := yaraRules.ScanMem(bs, 0, 1000)
 	if err != nil {
 		log.Fatal("could not scan with yara %v\n", err)
 		return result, err

@@ -82,6 +82,8 @@ github.com/hillu/go-yara v1.2.3-0.20200505204128-fd0f1d0aa191 h1:eY9E4jANsRQYI3w
 github.com/hillu/go-yara v1.2.3-0.20200505204128-fd0f1d0aa191/go.mod h1:KLxCsvD3F8cgVK866UDHi961qbzP+twKjhNdDsuz/2M=
 github.com/hillu/go-yara v1.2.3-0.20200511085137-04099472a08e h1:h8FJ3BWwjvJMG59RvLdAsv+4ziqXhUEdmkI6CtUbGDo=
 github.com/hillu/go-yara v1.2.3-0.20200511085137-04099472a08e/go.mod h1:KLxCsvD3F8cgVK866UDHi961qbzP+twKjhNdDsuz/2M=
+github.com/hillu/go-yara v1.2.3-0.20200516124514-34935a7ce995 h1:4ZH8h6l+8QTfsBeXR7zyFZHZDiEJk47jsH45uTfhOjU=
+github.com/hillu/go-yara v1.2.3-0.20200516124514-34935a7ce995/go.mod h1:KLxCsvD3F8cgVK866UDHi961qbzP+twKjhNdDsuz/2M=
 github.com/jedib0t/go-pretty v4.2.1+incompatible h1:YgpgCwastS5GrAK9z7OEv6rsgolGjU6h1WT3MmM5Hp8=
 github.com/jedib0t/go-pretty v4.2.1+incompatible/go.mod h1:XemHduiw8R651AF9Pt4FwCTKeG3oo7hrHJAoznj9nag=
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
@@ -129,6 +131,8 @@ github.com/mimoja/intelmc v0.0.0-20200511122253-e5201993a3e3 h1:/8jTjgifxluSo8NL
 github.com/mimoja/intelmc v0.0.0-20200511122253-e5201993a3e3/go.mod h1:Pxv1OYQYBtm1PbDXImB9fQ9R55lCCdqfAJwgMorN5WE=
 github.com/mimoja/spdlib v0.0.0-20200507110109-fbd0a05639ec h1:voVryRQW8zggwr4RgxsRatcC46aSql4FvN0WhJHrFeI=
 github.com/mimoja/spdlib v0.0.0-20200507110109-fbd0a05639ec/go.mod h1:2I/T4apxGZOMPZujRsG1Ys4Z59n1TobLb9tk/bbWxVU=
+github.com/mimoja/spdlib v0.0.0-20200519105920-a56b0639d29d h1:wYgbNb9ib6BTzL3thhJ2onCcQ6tsPPwZgSv9NHhcHn0=
+github.com/mimoja/spdlib v0.0.0-20200519105920-a56b0639d29d/go.mod h1:fiDeOYek1YQLB728fALt98IciLA06gM9auRv9iMqZUA=
 github.com/minio/minio-go v6.0.14+incompatible h1:fnV+GD28LeqdN6vT2XdGKW8Qe/IfjJDswNVuni6km9o=
 github.com/minio/minio-go v6.0.14+incompatible/go.mod h1:7guKYtitv8dktvNUGrhzmNlA5wrAABTQXCoesZdFQO8=
 github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG+4E0Y=
