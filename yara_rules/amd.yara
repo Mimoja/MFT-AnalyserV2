@@ -19,14 +19,9 @@ rule AGESA {
         any of them
 }
 
-rule amdHeader {
+rule AMDEntryTable {
     strings:
         $AMDHeader = {aa 55 aa 55}
     condition:
         $AMDHeader at 0x20000
-        or $AMDHeader at 0x820000
-        or $AMDHeader at 0xC20000
-        or $AMDHeader at 0xE20000
-        or $AMDHeader at 0xF20000
-        or uint32(0) == 0x55AA55AA
 }

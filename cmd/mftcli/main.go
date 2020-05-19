@@ -56,13 +56,15 @@ func handleResult(r MFT_AnalyserV2.Result) {
 	tw.AppendRow(table.Row{6, "MD5", r.ID.MD5})
 	println(tw.Render())
 
-	tw = table.NewWriter()
-	tw.AppendHeader(table.Row{"#", "Copyright String"})
-	for i, c := range r.Copyrights {
-		tw.AppendRow(table.Row{i, c})
+	if len(r.Copyrights)  > 0 {
+		tw = table.NewWriter()
+		tw.AppendHeader(table.Row{"#", "Copyright String"})
+		for i, c := range r.Copyrights {
+			tw.AppendRow(table.Row{i, c})
 
+		}
+		println(tw.Render())
 	}
-	println(tw.Render())
 
 	tw = table.NewWriter()
 	tw.AppendHeader(table.Row{"#", "Vendor String"})
