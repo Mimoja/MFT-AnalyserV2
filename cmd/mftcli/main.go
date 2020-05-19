@@ -56,7 +56,7 @@ func handleResult(r MFT_AnalyserV2.Result) {
 	tw.AppendRow(table.Row{6, "MD5", r.ID.MD5})
 	println(tw.Render())
 
-	if len(r.Copyrights)  > 0 {
+	if len(r.Copyrights) > 0 {
 		tw = table.NewWriter()
 		tw.AppendHeader(table.Row{"#", "Copyright String"})
 		for i, c := range r.Copyrights {
@@ -87,20 +87,109 @@ func handleResult(r MFT_AnalyserV2.Result) {
 		println(tw.Render())
 	}
 
-	if r.AMD != nil {
+	if len(r.AMDAGESA) > 0 || r.AMDFirmware != nil {
 		tw = table.NewWriter()
 		tw.AppendHeader(table.Row{"AMD"})
 		println(tw.Render())
+	}
 
+	if len(r.AMDAGESA) > 0 {
 		tw = table.NewWriter()
 		tw.AppendHeader(table.Row{"#", "AGESA"})
-		for i, agesa := range r.AMD.AGESA {
+		for i, agesa := range r.AMDAGESA {
 			tw.AppendRow(table.Row{strconv.Itoa(i), agesa.Header})
 		}
 		println(tw.Render())
+	}
 
-		if r.AMD.Firmware != nil {
-			log.Fatalf("Plotting AMD firmware is not implemented. Please hit @Mimoja with something!")
+	if r.AMDFirmware != nil {
+		tw = table.NewWriter()
+		tw.AppendHeader(table.Row{"AMD embedded Firmware", "MASK:", fmt.Sprintf("0x%X", *r.AMDFirmware.FlashMapping)})
+		println(tw.Render())
+
+		if r.AMDFirmware.FET != nil {
+			fet := r.AMDFirmware.FET
+
+			tw = table.NewWriter()
+			tw.AppendHeader(table.Row{"FET", fmt.Sprintf("0x%X", fet.Location)})
+			tw.AppendRow(table.Row{"Signature", fmt.Sprintf("0x%X", fet.Signature)})
+			tw.AppendRow(table.Row{"ImcRomBase", fmt.Sprintf("0x%X", *fet.ImcRomBase)})
+			tw.AppendRow(table.Row{"GecRomBase", fmt.Sprintf("0x%X", *fet.GecRomBase)})
+			tw.AppendRow(table.Row{"XHCRomBase", fmt.Sprintf("0x%X", *fet.XHCRomBase)})
+			tw.AppendRow(table.Row{"PSPDirBase", fmt.Sprintf("0x%X", *fet.PSPDirBase)})
+			tw.AppendRow(table.Row{"NewPSPDirBase", fmt.Sprintf("0x%X", *fet.NewPSPDirBase)})
+			tw.AppendRow(table.Row{"BHDDirBase", fmt.Sprintf("0x%X", *fet.BHDDirBase)})
+			tw.AppendRow(table.Row{"NewBHDDirBase", fmt.Sprintf("0x%X", *fet.NewBHDDirBase)})
+			println(tw.Render())
+
+			for i, rom := range r.AMDFirmware.Roms {
+				tw = table.NewWriter()
+				tw.AppendHeader(table.Row{"ROM", "Entry", strconv.Itoa(i)})
+				tw.AppendRow(table.Row{"Type", rom.Type})
+				for y, dir := range rom.Directories {
+					tw.AppendRow(table.Row{"Directory", strconv.Itoa(y)})
+					tw.AppendRow(table.Row{"", "Location", fmt.Sprintf("0x%X", dir.Location)})
+					tw.AppendRow(table.Row{"", "Header", "Cookie", string(dir.Header.Cookie[:])})
+					tw.AppendRow(table.Row{"", "", "Checksum", fmt.Sprintf("0x%X", dir.Header.Checksum)})
+					tw.AppendRow(table.Row{"", "", "TotalEntries", fmt.Sprintf("0x%X", dir.Header.TotalEntries)})
+
+					for z, entry := range dir.Entries {
+						tw.AppendRow(table.Row{"", "Entry", strconv.Itoa(z)})
+
+						if entry.TypeInfo.Name != "" {
+							tw.AppendRow(table.Row{"", "", "Type", fmt.Sprintf("%s (0x%x)", entry.TypeInfo.Name, entry.DirectoryEntry.Type)})
+						} else {
+							tw.AppendRow(table.Row{"", "", "Type", fmt.Sprintf("0x%x", entry.DirectoryEntry.Type)})
+						}
+						tw.AppendRow(table.Row{"", "", "Size", fmt.Sprintf("0x%x", entry.DirectoryEntry.Size)})
+						tw.AppendRow(table.Row{"", "", "Location", fmt.Sprintf("0x%x", entry.DirectoryEntry.Location)})
+
+						hex_signature := fmt.Sprintf("0x%X", entry.Signature)
+						if len(hex_signature) > 30 {
+							hex_signature = hex_signature[:30] + "..."
+						}
+						if hex_signature != "" {
+							tw.AppendRow(table.Row{"", "", "Signature", hex_signature})
+						}
+
+						if entry.Version != "" {
+							tw.AppendRow(table.Row{"", "", "Version", entry.Version})
+						}
+
+						if entry.Header != nil {
+							tw.AppendRow(table.Row{"", "", "Header", "Unknown @ 0x00", fmt.Sprintf("0x%X", entry.Header.Unknown00)})
+							tw.AppendRow(table.Row{"", "", "", "ID", fmt.Sprintf("0x%X", entry.Header.ID)})
+							tw.AppendRow(table.Row{"", "", "", "SizeSigned", fmt.Sprintf("0x%X", entry.Header.SizeSigned)})
+							tw.AppendRow(table.Row{"", "", "", "IsEncrypted", fmt.Sprintf("0x%X", entry.Header.IsEncrypted)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x1C", fmt.Sprintf("0x%X", entry.Header.Unknown1C)})
+							tw.AppendRow(table.Row{"", "", "", "EncFingerprint", fmt.Sprintf("0x%X", entry.Header.EncFingerprint)})
+							tw.AppendRow(table.Row{"", "", "", "IsSigned", fmt.Sprintf("0x%X", entry.Header.IsSigned)})
+							tw.AppendRow(table.Row{"", "", "", "SigFingerprint", fmt.Sprintf("0x%X", entry.Header.SigFingerprint)})
+							tw.AppendRow(table.Row{"", "", "", "IsCompressed", fmt.Sprintf("0x%X", entry.Header.IsCompressed)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x4C", fmt.Sprintf("0x%X", entry.Header.Unknown4C)})
+							tw.AppendRow(table.Row{"", "", "", "FullSize", fmt.Sprintf("0x%X", entry.Header.FullSize)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x54", fmt.Sprintf("0x%X", entry.Header.Unknown54)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x58", fmt.Sprintf("0x%X", entry.Header.Unknown58)})
+							tw.AppendRow(table.Row{"", "", "", "Version", fmt.Sprintf("0x%X", entry.Header.Version)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x64", fmt.Sprintf("0x%X", entry.Header.Unknown64)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x68", fmt.Sprintf("0x%X", entry.Header.Unknown68)})
+							tw.AppendRow(table.Row{"", "", "", "SizePacked", fmt.Sprintf("0x%X", entry.Header.SizePacked)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x70", fmt.Sprintf("0x%X", entry.Header.Unknown70)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x80", fmt.Sprintf("0x%X", entry.Header.Unknown80)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x90", fmt.Sprintf("0x%X", entry.Header.Unknown90)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x94", fmt.Sprintf("0x%X", entry.Header.Unknown94)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x98", fmt.Sprintf("0x%X", entry.Header.Unknown98)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0x9C", fmt.Sprintf("0x%X", entry.Header.Unknown9C)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0xA0", fmt.Sprintf("0x%X", entry.Header.UnknownA0)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0xA4", fmt.Sprintf("0x%X", entry.Header.UnknownA4)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0xA8", fmt.Sprintf("0x%X", entry.Header.UnknownA8)})
+							tw.AppendRow(table.Row{"", "", "", "Unknown @ 0xB0", fmt.Sprintf("0x%X", entry.Header.UnknownB0)[:30] + "..."})
+						}
+					}
+				}
+				println(tw.Render())
+
+			}
 		}
 	}
 
