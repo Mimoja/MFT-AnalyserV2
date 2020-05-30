@@ -12,6 +12,7 @@ import (
 	"github.com/Mimoja/intelfit"
 	"github.com/hillu/go-yara"
 	"github.com/linuxboot/fiano/pkg/uefi"
+	"github.com/mimoja/amdfw"
 	"github.com/mimoja/intelfsp"
 	"github.com/mimoja/intelmc"
 	spdutil "github.com/mimoja/spdlib"
@@ -20,6 +21,15 @@ import (
 )
 
 var yaraRules *yara.Rules
+
+func AppendIfMissing(slice []string, i string) []string {
+	for _, ele := range slice {
+		if ele == i {
+			return slice
+		}
+	}
+	return append(slice, i)
+}
 
 func SetupYara() {
 	c, err := yara.NewCompiler()
@@ -56,7 +66,8 @@ func SetupYara() {
 type Result struct {
 	ID              MFTCommon.IDEntry        `json:",omitempty"`
 	FirmwareOffset  int64                    `json:",omitempty"`
-	AMD             *MFTCommon.AMDFirmware   `json:"AMD"`
+	AMDAGESA        []MFTCommon.AMDAGESA     `json:",omitempty"`
+	AMDFirmware     *amdfw.Image             `json:",omitempty"`
 	INTEL           *MFTCommon.IntelFirmware `json:"INTEL""`
 	Certificates    []map[string]interface{} `json:"Certificates"`
 	Copyrights      []string                 `json:"Copyrights"`
@@ -67,10 +78,8 @@ type Result struct {
 
 func Analyse(bs []byte) (Result, error) {
 	result := Result{}
-	is_amd := false
 	is_intel := false
 
-	result.AMD = &MFTCommon.AMDFirmware{}
 	result.INTEL = &MFTCommon.IntelFirmware{}
 	result.ID = MFTCommon.GenerateID(bs)
 
@@ -95,11 +104,14 @@ func Analyse(bs []byte) (Result, error) {
 					Raw:    fmt.Sprintf("%q\n", bs[m.Offset:m.Offset+100]),
 					Offset: uint32(m.Offset),
 				}
-				log.Printf("Matched : %v", agesa.Header)
-				result.AMD.AGESA = append(result.AMD.AGESA, agesa)
-				is_amd = true
+				result.AMDAGESA = append(result.AMDAGESA, agesa)
+			case "AMDEntryTable":
+				result.AMDFirmware, err = AnalyseAMDFW(bs)
+				if err != nil {
+					log.Printf("Errors during AMD Firmware Parsing: %v", err)
+				}
 			case "COPYRIGHT":
-				result.Copyrights = append(result.Copyrights, string(m.Data))
+				result.Copyrights = AppendIfMissing(result.Copyrights, string(m.Data))
 			case "CRYPTO_DER":
 				size := binary.BigEndian.Uint16(match_bytes[2:]) + 4
 
@@ -157,7 +169,7 @@ func Analyse(bs []byte) (Result, error) {
 					log.Printf("Unhandled RULE: %s : %s at 0x%X", match.Rule, name, m.Offset)
 				}
 			case "VENDOR":
-				result.Vendors = append(result.Vendors, string(m.Data))
+				result.Vendors = AppendIfMissing(result.Vendors, string(m.Data))
 				break
 			case "SPD_FILE":
 				spd4 := spdutil.ParseSPD4(match_bytes)
@@ -192,8 +204,8 @@ func Analyse(bs []byte) (Result, error) {
 						}
 					}
 				} else if name == "AMD" {
+					log.Printf("AMD microcode parsing is not implemented")
 					//TODO AMD MC
-					is_amd = true
 				}
 			default:
 				log.Printf("Unhandled RULE: %s : %s at 0x%X", match.Rule, name, m.Offset)
@@ -250,12 +262,45 @@ func Analyse(bs []byte) (Result, error) {
 		}
 	}
 
-	if !is_amd {
-		result.AMD = nil
-	}
 	if !is_intel {
 		result.INTEL = nil
 	}
 
 	return result, nil
+}
+
+
+func AnalyseAMDFW(firmwareBytes []byte) (*amdfw.Image, error) {
+	image := amdfw.Image{}
+
+	fetOffset, err := amdfw.FindFirmwareEntryTable(firmwareBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("Found PSP Magic 0x55AA55AA at 0x%08X", fetOffset)
+
+	fet, err := amdfw.ParseFirmwareEntryTable(firmwareBytes, fetOffset)
+	if err != nil {
+		log.Printf("Could not read AMDFirmwareEntryTable: ", err)
+		return nil, err
+	}
+
+	image.FET = fet
+	mapping, err := amdfw.GetFlashMapping(firmwareBytes, fet)
+	if err != nil {
+		log.Printf("Could not determin FlashMapping: ", err)
+		return &image, err
+	}
+	image.FlashMapping = &mapping
+
+	roms, errs := amdfw.ParseRoms(firmwareBytes, fet, mapping)
+	if len(errs) != 0 {
+		err = fmt.Errorf("Errors parsing images %v", errs)
+	} else {
+		err = nil
+	}
+
+	image.Roms = roms
+	return &image, err
 }

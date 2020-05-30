@@ -9,7 +9,7 @@ require (
 	github.com/hillu/go-yara v1.2.3-0.20200516124514-34935a7ce995
 	github.com/jedib0t/go-pretty v4.2.1+incompatible
 	github.com/linuxboot/fiano v5.0.0+incompatible
-	github.com/mimoja/amdfw v0.0.0-20191031111635-2218359ecbdc // indirect
+	github.com/mimoja/amdfw v0.0.0-20191031111635-2218359ecbdc
 	github.com/mimoja/intelfsp v0.0.0-20200131082651-219faac6d96b
 	github.com/mimoja/intelmc v0.0.0-20200511122253-e5201993a3e3
 	github.com/mimoja/spdlib v0.0.0-20200519105920-a56b0639d29d
